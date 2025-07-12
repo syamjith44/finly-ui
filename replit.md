@@ -18,6 +18,7 @@ Preferred communication style: Simple, everyday language.
 - Added advanced financial metrics and detailed chart visualizations
 - Individual financial items display as tiles with category tags (Income, Expenses, Debt)
 - Implemented edit mode for financial data (edit button toggles editable state)
+- Updated currency format from USD ($) to Indian Rupees (₹) across all components
 
 ## System Architecture
 

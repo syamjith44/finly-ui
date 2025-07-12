@@ -87,7 +87,7 @@ export function LineChart({ title, data, color = "rgb(59, 130, 246)", icon, clas
           {data.map((item, index) => (
             <div key={index} className="text-center">
               <div>{item.label}</div>
-              <div className="text-white font-medium">${item.value.toLocaleString()}</div>
+              <div className="text-white font-medium">₹{item.value.toLocaleString()}</div>
             </div>
           ))}
         </div>

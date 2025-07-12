@@ -33,11 +33,11 @@ export function ProgressBar({ title, current, target, icon, color, className }: 
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-400">Current</span>
-          <span className="text-white font-medium">${current.toLocaleString()}</span>
+          <span className="text-white font-medium">₹{current.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-400">Target</span>
-          <span className="text-white font-medium">${target.toLocaleString()}</span>
+          <span className="text-white font-medium">₹{target.toLocaleString()}</span>
         </div>
       </div>
       

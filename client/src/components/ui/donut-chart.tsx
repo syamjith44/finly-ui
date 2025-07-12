@@ -91,7 +91,7 @@ export function DonutChart({ title, data, centerValue, centerLabel, className }:
               <div className="flex-1">
                 <div className="text-sm text-white">{segment.label}</div>
                 <div className="text-xs text-gray-400">
-                  ${segment.value.toLocaleString()} ({segment.percentage.toFixed(1)}%)
+                  ₹{segment.value.toLocaleString()} ({segment.percentage.toFixed(1)}%)
                 </div>
               </div>
             </div>

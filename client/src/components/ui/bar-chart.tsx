@@ -35,7 +35,7 @@ export function BarChart({ title, data, icon, className }: BarChartProps) {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-300">{item.label}</span>
                 <span className="text-sm font-medium text-white">
-                  ${item.value.toLocaleString()}
+                  ₹{item.value.toLocaleString()}
                 </span>
               </div>
               
