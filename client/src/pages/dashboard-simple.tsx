@@ -287,26 +287,24 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Analytics Section */}
-        <section>
-          <div className="holographic-border p-6 rounded-xl">
-            <h3 className="text-2xl font-bold neon-glow mb-6">Analytics</h3>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartPlaceholder
-                title="Income vs Expenses"
-                icon={<TrendingUp />}
-                description="Integration ready for Chart.js/Recharts"
-              />
+            {/* Analytics Section */}
+            <div className="mt-8">
+              <h4 className="text-lg font-semibold mb-4 text-blue-400">Analytics</h4>
               
-              <ChartPlaceholder
-                title="Expense Categories"
-                icon={<PieChart />}
-                description="Integration ready for Chart.js/Recharts"
-              />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ChartPlaceholder
+                  title="Income vs Expenses"
+                  icon={<TrendingUp />}
+                  description="Integration ready for Chart.js/Recharts"
+                />
+                
+                <ChartPlaceholder
+                  title="Expense Categories"
+                  icon={<PieChart />}
+                  description="Integration ready for Chart.js/Recharts"
+                />
+              </div>
             </div>
           </div>
         </section>
