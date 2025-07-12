@@ -17,8 +17,13 @@ import {
   TrendingUp,
   PieChart,
   Save,
-  Settings,
-  TestTube
+  Edit,
+  Car,
+  Home,
+  Utensils,
+  GraduationCap,
+  Building2,
+  Target
 } from "lucide-react";
 import { FinancialDataWithTotals } from "@/types/financial";
 
@@ -40,22 +45,12 @@ export default function Dashboard() {
     otherLoans: "0"
   });
 
-  // API config state
-  const [apiConfig, setApiConfig] = useState({
-    baseUrl: "",
-    apiKey: "",
-    isActive: false
-  });
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
 
   // Fetch financial data
   const { data: financialData } = useQuery<FinancialDataWithTotals>({
     queryKey: ["/api/financial-data", user?.id],
-    enabled: !!user?.id,
-  });
-
-  // Fetch API config
-  const { data: apiConfigData } = useQuery({
-    queryKey: ["/api/config", user?.id],
     enabled: !!user?.id,
   });
 
@@ -76,12 +71,6 @@ export default function Dashboard() {
     }
   }, [financialData]);
 
-  useEffect(() => {
-    if (apiConfigData) {
-      setApiConfig(apiConfigData);
-    }
-  }, [apiConfigData]);
-
   // Update financial data mutation
   const updateFinancialMutation = useMutation({
     mutationFn: (data: any) => api.financial.updateData(user!.id, data),
@@ -101,20 +90,20 @@ export default function Dashboard() {
     }
   });
 
-  // Update API config mutation
-  const updateConfigMutation = useMutation({
-    mutationFn: (config: any) => api.config.update(user!.id, config),
+  // Individual field update mutation
+  const updateFieldMutation = useMutation({
+    mutationFn: (data: any) => api.financial.updateData(user!.id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/config", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/financial-data", user?.id] });
       toast({
         title: "Success",
-        description: "API configuration updated successfully!",
+        description: "Financial data updated successfully!",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to update API configuration",
+        description: "Failed to update financial data",
         variant: "destructive",
       });
     }
@@ -125,9 +114,27 @@ export default function Dashboard() {
     updateFinancialMutation.mutate(financialForm);
   };
 
-  const handleConfigSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateConfigMutation.mutate(apiConfig);
+  const handleSaveEdit = () => {
+    updateFinancialMutation.mutate(financialForm);
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form to original data
+    if (financialData) {
+      setFinancialForm({
+        salary: financialData.salary || "0",
+        sideIncome: financialData.sideIncome || "0",
+        investments: financialData.investments || "0",
+        housing: financialData.housing || "0",
+        food: financialData.food || "0",
+        transportation: financialData.transportation || "0",
+        creditCards: financialData.creditCards || "0",
+        studentLoans: financialData.studentLoans || "0",
+        otherLoans: financialData.otherLoans || "0"
+      });
+    }
+    setIsEditing(false);
   };
 
   const formatCurrency = (amount: number) => {
@@ -141,276 +148,166 @@ export default function Dashboard() {
 
   const totals = financialData?.totals || { income: 0, expenses: 0, debt: 0, netWorth: 0 };
 
+  // Financial data items with categories
+  const financialItems = [
+    // Income
+    { key: 'salary', label: 'Salary', value: financialForm.salary, category: 'Income', icon: <DollarSign className="text-white" />, color: 'bg-gradient-to-r from-green-400 to-green-600' },
+    { key: 'sideIncome', label: 'Side Income', value: financialForm.sideIncome, category: 'Income', icon: <Target className="text-white" />, color: 'bg-gradient-to-r from-green-400 to-green-500' },
+    { key: 'investments', label: 'Investments', value: financialForm.investments, category: 'Income', icon: <TrendingUp className="text-white" />, color: 'bg-gradient-to-r from-green-500 to-green-600' },
+    
+    // Expenses
+    { key: 'housing', label: 'Housing', value: financialForm.housing, category: 'Expenses', icon: <Home className="text-white" />, color: 'bg-gradient-to-r from-red-400 to-red-600' },
+    { key: 'food', label: 'Food & Groceries', value: financialForm.food, category: 'Expenses', icon: <Utensils className="text-white" />, color: 'bg-gradient-to-r from-red-400 to-red-500' },
+    { key: 'transportation', label: 'Transportation', value: financialForm.transportation, category: 'Expenses', icon: <Car className="text-white" />, color: 'bg-gradient-to-r from-red-500 to-red-600' },
+    
+    // Debts
+    { key: 'creditCards', label: 'Credit Cards', value: financialForm.creditCards, category: 'Debt', icon: <CreditCard className="text-white" />, color: 'bg-gradient-to-r from-yellow-400 to-yellow-600' },
+    { key: 'studentLoans', label: 'Student Loans', value: financialForm.studentLoans, category: 'Debt', icon: <GraduationCap className="text-white" />, color: 'bg-gradient-to-r from-yellow-400 to-yellow-500' },
+    { key: 'otherLoans', label: 'Other Loans', value: financialForm.otherLoans, category: 'Debt', icon: <Building2 className="text-white" />, color: 'bg-gradient-to-r from-yellow-500 to-yellow-600' },
+  ];
+
   return (
     <div className="min-h-screen">
       <Navbar />
       
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Dashboard Overview */}
+        {/* AI Chat Interface - Landing Section */}
         <section>
           <div className="mb-8">
-            <h2 className="text-3xl font-bold neon-glow mb-2">Financial Dashboard</h2>
-            <p className="text-gray-300">Your complete financial overview powered by AI</p>
-          </div>
-
-          {/* Financial Summary Tiles */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <FinancialTile
-              title="Total Income"
-              value={formatCurrency(totals.income)}
-              change="+12.5%"
-              changePositive={true}
-              icon={<DollarSign className="text-white" />}
-              iconColor="bg-gradient-to-r from-green-400 to-green-600"
-            />
-            
-            <FinancialTile
-              title="Total Expenses"
-              value={formatCurrency(totals.expenses)}
-              change="+8.2%"
-              changePositive={false}
-              icon={<CreditCard className="text-white" />}
-              iconColor="bg-gradient-to-r from-red-400 to-red-600"
-            />
-            
-            <FinancialTile
-              title="Total Debt"
-              value={formatCurrency(totals.debt)}
-              change="-2.1%"
-              changePositive={true}
-              icon={<AlertTriangle className="text-white" />}
-              iconColor="bg-gradient-to-r from-yellow-400 to-yellow-600"
-            />
-            
-            <FinancialTile
-              title="Net Worth"
-              value={formatCurrency(totals.netWorth)}
-              change="+15.3%"
-              changePositive={true}
-              icon={<PiggyBank className="text-white" />}
-              iconColor="bg-gradient-to-r from-blue-400 to-cyan-400"
-            />
-          </div>
-
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <ChartPlaceholder
-              title="Income vs Expenses"
-              icon={<TrendingUp />}
-              description="Integration ready for Chart.js/Recharts"
-            />
-            
-            <ChartPlaceholder
-              title="Expense Categories"
-              icon={<PieChart />}
-              description="Integration ready for Chart.js/Recharts"
-            />
+            <h2 className="text-3xl font-bold neon-glow mb-2">Dashboard</h2>
+            <p className="text-gray-300">Your intelligent financial companion</p>
           </div>
 
           {/* AI Chat Interface */}
           <AIChat />
         </section>
 
-        {/* Financial Data Input Section */}
+        {/* Financial Data Section */}
         <section>
           <div className="holographic-border p-6 rounded-xl glow-effect">
-            <h3 className="text-2xl font-bold neon-glow mb-6">Update Financial Information</h3>
-            
-            <form onSubmit={handleFinancialSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                {/* Income Input */}
-                <div className="glassmorphism p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4 text-green-400 flex items-center">
-                    <DollarSign className="mr-2" />
-                    Income Sources
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Salary</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.salary}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, salary: e.target.value }))}
-                        placeholder="Monthly salary"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Side Income</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.sideIncome}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, sideIncome: e.target.value }))}
-                        placeholder="Additional income"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Investments</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.investments}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, investments: e.target.value }))}
-                        placeholder="Investment returns"
-                      />
-                    </div>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold neon-glow">Financial Overview</h3>
+              <div className="flex space-x-2">
+                {!isEditing ? (
+                  <HolographicButton
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center"
+                  >
+                    <Edit className="mr-2 w-4 h-4" />
+                    Edit
+                  </HolographicButton>
+                ) : (
+                  <div className="flex space-x-2">
+                    <HolographicButton
+                      onClick={handleSaveEdit}
+                      disabled={updateFinancialMutation.isPending}
+                      className="flex items-center"
+                    >
+                      <Save className="mr-2 w-4 h-4" />
+                      {updateFinancialMutation.isPending ? "Saving..." : "Save"}
+                    </HolographicButton>
+                    <HolographicButton
+                      onClick={handleCancelEdit}
+                      variant="outline"
+                      className="flex items-center"
+                    >
+                      Cancel
+                    </HolographicButton>
                   </div>
-                </div>
-
-                {/* Expenses Input */}
-                <div className="glassmorphism p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4 text-red-400 flex items-center">
-                    <CreditCard className="mr-2" />
-                    Monthly Expenses
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Housing</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.housing}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, housing: e.target.value }))}
-                        placeholder="Rent/Mortgage"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Food & Groceries</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.food}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, food: e.target.value }))}
-                        placeholder="Food expenses"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Transportation</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.transportation}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, transportation: e.target.value }))}
-                        placeholder="Transport costs"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Debts Input */}
-                <div className="glassmorphism p-6 rounded-xl">
-                  <h4 className="text-lg font-semibold mb-4 text-yellow-400 flex items-center">
-                    <AlertTriangle className="mr-2" />
-                    Debts & Liabilities
-                  </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Credit Cards</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.creditCards}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, creditCards: e.target.value }))}
-                        placeholder="CC debt"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Student Loans</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.studentLoans}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, studentLoans: e.target.value }))}
-                        placeholder="Student debt"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Other Loans</label>
-                      <HolographicInput
-                        type="number"
-                        value={financialForm.otherLoans}
-                        onChange={(e) => setFinancialForm(prev => ({ ...prev, otherLoans: e.target.value }))}
-                        placeholder="Other debts"
-                      />
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
+            </div>
 
-              <div className="flex justify-center">
-                <HolographicButton
-                  type="submit"
-                  className="px-8 py-3 text-lg"
-                  disabled={updateFinancialMutation.isPending}
-                >
-                  <Save className="mr-2" />
-                  {updateFinancialMutation.isPending ? "Updating..." : "Update Financial Data"}
-                </HolographicButton>
-              </div>
-            </form>
+            {/* Summary Tiles */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <FinancialTile
+                title="Total Income"
+                value={formatCurrency(totals.income)}
+                change="+12.5%"
+                changePositive={true}
+                icon={<DollarSign className="text-white" />}
+                iconColor="bg-gradient-to-r from-green-400 to-green-600"
+              />
+              
+              <FinancialTile
+                title="Total Expenses"
+                value={formatCurrency(totals.expenses)}
+                change="+8.2%"
+                changePositive={false}
+                icon={<CreditCard className="text-white" />}
+                iconColor="bg-gradient-to-r from-red-400 to-red-600"
+              />
+              
+              <FinancialTile
+                title="Total Debt"
+                value={formatCurrency(totals.debt)}
+                change="-2.1%"
+                changePositive={true}
+                icon={<AlertTriangle className="text-white" />}
+                iconColor="bg-gradient-to-r from-yellow-400 to-yellow-600"
+              />
+              
+              <FinancialTile
+                title="Net Worth"
+                value={formatCurrency(totals.netWorth)}
+                change="+15.3%"
+                changePositive={true}
+                icon={<PiggyBank className="text-white" />}
+                iconColor="bg-gradient-to-r from-blue-400 to-cyan-400"
+              />
+            </div>
+
+            {/* Individual Financial Items */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {financialItems.map((item) => (
+                <div key={item.key} className="financial-tile p-4 rounded-xl">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.color}`}>
+                      {item.icon}
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      item.category === 'Income' ? 'bg-green-400/20 text-green-400' :
+                      item.category === 'Expenses' ? 'bg-red-400/20 text-red-400' :
+                      'bg-yellow-400/20 text-yellow-400'
+                    }`}>
+                      {item.category}
+                    </span>
+                  </div>
+                  <h4 className="text-gray-300 text-sm font-medium mb-2">{item.label}</h4>
+                  {isEditing ? (
+                    <HolographicInput
+                      type="number"
+                      value={item.value}
+                      onChange={(e) => setFinancialForm(prev => ({ ...prev, [item.key]: e.target.value }))}
+                      className="w-full text-lg font-bold"
+                    />
+                  ) : (
+                    <p className="text-lg font-bold text-white">{formatCurrency(parseFloat(item.value))}</p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* API Configuration Section */}
+        {/* Analytics Section */}
         <section>
           <div className="holographic-border p-6 rounded-xl">
-            <h3 className="text-2xl font-bold neon-glow mb-6">Backend Configuration</h3>
+            <h3 className="text-2xl font-bold neon-glow mb-6">Analytics</h3>
             
-            <form onSubmit={handleConfigSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-cyan-400">API Base URL</label>
-                  <HolographicInput
-                    type="url"
-                    value={apiConfig.baseUrl}
-                    onChange={(e) => setApiConfig(prev => ({ ...prev, baseUrl: e.target.value }))}
-                    placeholder="https://your-api.com/v1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-cyan-400">API Key</label>
-                  <HolographicInput
-                    type="password"
-                    value={apiConfig.apiKey}
-                    onChange={(e) => setApiConfig(prev => ({ ...prev, apiKey: e.target.value }))}
-                    placeholder="Enter your API key"
-                  />
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h4 className="text-lg font-semibold mb-4 text-blue-400">Available Endpoints</h4>
-                <div className="space-y-3">
-                  <div className="glassmorphism p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-sm text-green-400">POST /api/financial-analysis</span>
-                      <span className="text-xs text-gray-400">Analyze financial data</span>
-                    </div>
-                  </div>
-                  <div className="glassmorphism p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-sm text-blue-400">GET /api/user/dashboard</span>
-                      <span className="text-xs text-gray-400">Fetch dashboard data</span>
-                    </div>
-                  </div>
-                  <div className="glassmorphism p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-sm text-yellow-400">PUT /api/user/financial-data</span>
-                      <span className="text-xs text-gray-400">Update financial information</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex space-x-4">
-                <HolographicButton type="button" className="flex items-center">
-                  <TestTube className="mr-2" />
-                  Test Connection
-                </HolographicButton>
-                <HolographicButton
-                  type="submit"
-                  variant="outline"
-                  disabled={updateConfigMutation.isPending}
-                  className="flex items-center"
-                >
-                  <Settings className="mr-2" />
-                  {updateConfigMutation.isPending ? "Configuring..." : "Configure"}
-                </HolographicButton>
-              </div>
-            </form>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChartPlaceholder
+                title="Income vs Expenses"
+                icon={<TrendingUp />}
+                description="Integration ready for Chart.js/Recharts"
+              />
+              
+              <ChartPlaceholder
+                title="Expense Categories"
+                icon={<PieChart />}
+                description="Integration ready for Chart.js/Recharts"
+              />
+            </div>
           </div>
         </section>
       </main>

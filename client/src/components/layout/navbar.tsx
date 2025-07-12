@@ -18,13 +18,6 @@ export function Navbar() {
               <BarChart3 className="w-4 h-4 mr-1" />
               Dashboard
             </a>
-            <a href="#analytics" className="hover:text-blue-400 transition-colors">
-              Analytics
-            </a>
-            <a href="#ai-chat" className="hover:text-blue-400 transition-colors flex items-center">
-              <MessageSquare className="w-4 h-4 mr-1" />
-              AI Assistant
-            </a>
             <HolographicButton onClick={logout} className="flex items-center">
               <User className="w-4 h-4 mr-2" />
               Logout

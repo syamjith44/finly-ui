@@ -66,9 +66,8 @@ export function AIChat() {
 
   return (
     <div className="holographic-border p-6 rounded-xl glow-effect">
-      <h3 className="text-xl font-semibold mb-4 text-blue-400 flex items-center">
-        <Bot className="mr-2" />
-        AI Financial Assistant
+      <h3 className="text-xl font-semibold mb-4 text-blue-400">
+        Chat
       </h3>
       
       {/* Chat Messages */}

@@ -8,6 +8,16 @@ FinanceAI is a full-stack personal finance management application that combines 
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (January 2025)
+
+- Restructured dashboard with AI chat as the landing page
+- Merged analytics and dashboard into single tab
+- Removed backend configuration from UI
+- Changed financial data to individual tiles with category tags (Income, Expenses, Debt)
+- Implemented edit mode for financial data (edit button toggles editable state)
+- Individual financial items now display as tiles with icons and category tags
+- Removed separate sections for income sources, monthly expenses, and debts & liabilities
+
 ## System Architecture
 
 This is a monorepo application using a client-server architecture with the following structure:
