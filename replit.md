@@ -10,13 +10,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (January 2025)
 
-- Restructured dashboard with AI chat as the landing page
-- Merged analytics and dashboard into single tab
-- Removed backend configuration from UI
-- Changed financial data to individual tiles with category tags (Income, Expenses, Debt)
+- Created separate home page with AI chat and financial overview
+- Built dedicated analytics dashboard with comprehensive charts and metrics
+- Added analytics components: ProgressBar, MetricCard, DonutChart, LineChart, BarChart
+- Implemented proper routing: Home (/) for chat + financial overview, Dashboard (/dashboard) for analytics
+- Created financial goal tracking with progress bars
+- Added advanced financial metrics and detailed chart visualizations
+- Individual financial items display as tiles with category tags (Income, Expenses, Debt)
 - Implemented edit mode for financial data (edit button toggles editable state)
-- Individual financial items now display as tiles with icons and category tags
-- Removed separate sections for income sources, monthly expenses, and debts & liabilities
 
 ## System Architecture
 
