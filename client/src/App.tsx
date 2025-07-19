@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +8,26 @@ import AuthPage from "@/pages/auth";
 import HomePage from "@/pages/home";
 import DashboardAnalytics from "@/pages/dashboard-analytics";
 import NotFound from "@/pages/not-found";
+
+export function ProtectedRoute(
+  { path, component }: { path: string; component: any }
+) {
+  const { user } = useAuth();
+
+  if (!user) return <Redirect to="/auth" />;
+  return <Route path={path} component={component} />;
+}
+
+export function LoggedInUserRoute(
+  { path, component }: { path: string; component: any }
+) {
+  const { user } = useAuth();
+
+  if (user) return <Redirect to="/" />;
+  return <Route path={path} component={component} />;
+}
+
+
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -24,9 +44,9 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={HomePage} />
-      <Route path="/auth" component={AuthPage} />
-      <Route path="/dashboard" component={DashboardAnalytics} />
+      <ProtectedRoute path="/" component={HomePage} />
+      <LoggedInUserRoute path="/auth" component={AuthPage} />
+      <ProtectedRoute path="/dashboard" component={DashboardAnalytics} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,39 +1,61 @@
 import { apiRequest } from "./queryClient";
+import { config } from '@/config';
 
 export interface SendOTPRequest {
-  contact: string;
+  mobile_number: string;
 }
 
 export interface SendOTPResponse {
   success: boolean;
   message: string;
-  userId: number;
   otp?: string; // For development only
 }
 
 export interface VerifyOTPRequest {
-  userId: number;
+  mobile_number: string;
   otp: string;
 }
 
 export interface VerifyOTPResponse {
   success: boolean;
-  user?: any;
+  access_token: string;
   message?: string;
+}
+
+export interface UserSettingsResponse {
+  _id: string,
+  email: string,
+  mobile_number: string
 }
 
 export const api = {
   auth: {
     sendOTP: async (data: SendOTPRequest): Promise<SendOTPResponse> => {
-      const response = await apiRequest("POST", "/api/auth/send-otp", data);
+      const response = await apiRequest(
+        "POST", 
+        `${config.API_BASE_URL}/auth/send-otp/`, 
+        data
+      );
       return response.json();
     },
     
     verifyOTP: async (data: VerifyOTPRequest): Promise<VerifyOTPResponse> => {
-      const response = await apiRequest("POST", "/api/auth/verify-otp", data);
+      const response = await apiRequest(
+        "POST", 
+        `${config.API_BASE_URL}/auth/login/`, 
+        data
+      );
+      return response.json();
+    },
+
+    getUserSettings: async (): Promise<UserSettingsResponse> => {
+      const response = await apiRequest(
+        "GET", `${config.API_BASE_URL}/users/user-settings/`, 
+      );
       return response.json();
     }
   },
+
 
   financial: {
     getData: async (userId: number) => {

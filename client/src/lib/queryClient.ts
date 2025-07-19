@@ -12,9 +12,14 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const accessToken = localStorage.getItem("access_token");
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${accessToken}`
+  }
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });

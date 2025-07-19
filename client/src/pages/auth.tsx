@@ -10,9 +10,9 @@ import { Smartphone } from "lucide-react";
 
 export default function AuthPage() {
   const [step, setStep] = useState<"login" | "otp">("login");
-  const [contact, setContact] = useState("");
+  const [mobileNumber, setContact] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [userId, setUserId] = useState<number | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null); 
   
   const { login } = useAuth();
   const { toast } = useToast();
@@ -20,7 +20,6 @@ export default function AuthPage() {
   const sendOTPMutation = useMutation({
     mutationFn: api.auth.sendOTP,
     onSuccess: (data) => {
-      setUserId(data.userId);
       setStep("otp");
       toast({
         title: "OTP Sent",
@@ -43,8 +42,10 @@ export default function AuthPage() {
   const verifyOTPMutation = useMutation({
     mutationFn: api.auth.verifyOTP,
     onSuccess: (data) => {
-      if (data.success && userId) {
-        login(userId);
+      const token = data.access_token;
+      setAccessToken(token);
+      if (data.success && token) {
+        login(token);
         toast({
           title: "Welcome!",
           description: "Successfully logged in to FinanceAI",
@@ -62,16 +63,18 @@ export default function AuthPage() {
 
   const handleSendOTP = (e: React.FormEvent) => {
     e.preventDefault();
-    if (contact.trim()) {
-      sendOTPMutation.mutate({ contact: contact.trim() });
+    if (mobileNumber.trim()) {
+      sendOTPMutation.mutate({ mobile_number: `+91${mobileNumber.trim()}` });
     }
   };
 
   const handleVerifyOTP = (e: React.FormEvent) => {
     e.preventDefault();
     const otpCode = otp.join("");
-    if (otpCode.length === 6 && userId) {
-      verifyOTPMutation.mutate({ userId, otp: otpCode });
+    if (otpCode.length === 6) {
+      verifyOTPMutation.mutate(
+        { mobile_number: `+91${mobileNumber.trim()}`, otp: otpCode }
+      );
     }
   };
 
@@ -104,7 +107,7 @@ export default function AuthPage() {
             <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg glow-effect mx-auto mb-4 flex items-center justify-center">
               <div className="text-white text-2xl font-bold">F</div>
             </div>
-            <h1 className="text-3xl font-bold neon-glow mb-2">Welcome to FinanceAI</h1>
+            <h1 className="text-3xl font-bold neon-glow mb-2">Welcome to Finly AI</h1>
             <p className="text-gray-300">Your intelligent financial companion</p>
           </div>
 
@@ -116,7 +119,7 @@ export default function AuthPage() {
                 </label>
                 <HolographicInput
                   type="text"
-                  value={contact}
+                  value={mobileNumber}
                   onChange={(e) => setContact(e.target.value)}
                   placeholder="Enter email or phone number"
                   required
@@ -145,7 +148,6 @@ export default function AuthPage() {
                 type="button"
                 variant="outline"
                 className="w-full"
-                disabled
               >
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

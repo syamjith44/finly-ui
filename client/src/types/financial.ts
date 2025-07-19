@@ -25,3 +25,9 @@ export interface ChatMessage {
   createdAt: Date;
   isUser: boolean;
 }
+
+export interface User {
+  id: string;
+  email?: string;
+  mobile_number?: string;
+}

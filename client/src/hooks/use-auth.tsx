@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User } from "@shared/schema";
+import { useLocation } from "wouter";
+import { User } from "client/src/types/financial";
+import { api } from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (userId: number) => void;
+  login: (userId: string) => void;
   logout: () => void;
 }
 
@@ -13,36 +15,35 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [, navigate] = useLocation(); 
 
   useEffect(() => {
-    // For demo purposes, auto-login with mock user
-    const mockUser: User = {
-      id: 1,
-      email: "demo@financeai.com",
-      phone: null,
-      isVerified: true,
-      createdAt: new Date()
-    };
-    setUser(mockUser);
+    const storedUser = localStorage.getItem("financeai_user");
+    const storedToken = localStorage.getItem("access_token");
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+    }
     setIsLoading(false);
   }, []);
 
-  const login = (userId: number) => {
-    // In a real app, fetch user details here
-    const mockUser: User = {
-      id: userId,
-      email: "user@example.com",
-      phone: null,
-      isVerified: true,
-      createdAt: new Date()
+  const login = async (token: string) => {
+    localStorage.setItem("access_token", token);
+    const user = await api.auth.getUserSettings();
+    const currentUser: User = {
+      id: user._id,
+      email: user.email,
+      mobile_number: user.mobile_number
     };
-    setUser(mockUser);
-    localStorage.setItem("financeai_user", JSON.stringify(mockUser));
+    setUser(currentUser);
+    localStorage.setItem("financeai_user", JSON.stringify(currentUser));
+    navigate("/");
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("financeai_user");
+    localStorage.removeItem("access_token");
+    navigate("/auth");
   };
 
   return (
