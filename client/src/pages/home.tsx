@@ -147,7 +147,7 @@ export default function HomePage() {
         {/* AI Chat Interface - Landing Section */}
         <section>
           <div className="mb-8">
-            <h2 className="text-3xl font-bold neon-glow mb-2">Welcome to FinanceAI</h2>
+            <h2 className="text-3xl font-bold neon-glow mb-2">Welcome to Finly</h2>
             <p className="text-gray-300">Your intelligent financial companion</p>
           </div>
 

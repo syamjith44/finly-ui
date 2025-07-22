@@ -48,7 +48,7 @@ export default function AuthPage() {
         login(token);
         toast({
           title: "Welcome!",
-          description: "Successfully logged in to FinanceAI",
+          description: "Successfully logged in to Finly",
         });
       }
     },
@@ -107,7 +107,7 @@ export default function AuthPage() {
             <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg glow-effect mx-auto mb-4 flex items-center justify-center">
               <div className="text-white text-2xl font-bold">F</div>
             </div>
-            <h1 className="text-3xl font-bold neon-glow mb-2">Welcome to Finly AI</h1>
+            <h1 className="text-3xl font-bold neon-glow mb-2">Welcome to Finly</h1>
             <p className="text-gray-300">Your intelligent financial companion</p>
           </div>
 

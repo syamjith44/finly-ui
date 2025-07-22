@@ -12,7 +12,7 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg glow-effect"></div>
-            <span className="text-xl font-bold neon-glow">FinanceAI</span>
+            <span className="text-xl font-bold neon-glow">Finly</span>
           </div>
           <div className="hidden md:flex items-center space-x-6">
             <Link href="/dashboard" className="hover:text-blue-400 transition-colors flex items-center">
