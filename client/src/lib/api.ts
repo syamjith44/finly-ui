@@ -70,13 +70,13 @@ export const api = {
   },
 
   chat: {
-    getMessages: async (userId: number) => {
-      const response = await apiRequest("GET", `/api/chat/${userId}`);
+    getMessages: async () => {
+      const response = await apiRequest("GET", `${config.API_BASE_URL}/api/assistant/chat/`);
       return response.json();
     },
     
-    sendMessage: async (userId: number, message: string) => {
-      const response = await apiRequest("POST", `/api/chat/${userId}`, { message });
+    sendMessage: async (userId: string, message: string) => {
+      const response = await apiRequest("POST", `${config.API_BASE_URL}/api/assistant/chat/${userId}`, { message });
       return response.json();
     }
   },

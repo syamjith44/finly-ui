@@ -31,3 +31,10 @@ export interface User {
   email?: string;
   mobile_number?: string;
 }
+
+export interface Message {
+  id: string;
+  message: string;
+  response?: string;
+  createdAt: string;
+}

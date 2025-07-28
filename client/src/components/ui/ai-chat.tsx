@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HolographicInput } from "./holographic-input";
 import { HolographicButton } from "./holographic-button";
 import { api } from "@/lib/api";
+import { Message } from "client/src/types/financial";
+import { connectWebSocket, sendMessageWS } from "@/lib/websockets";
 import { useAuth } from "@/hooks/use-auth";
 import { PaperPlaneIcon, PersonIcon } from "@radix-ui/react-icons";
 import { Bot } from "lucide-react";
@@ -10,44 +12,54 @@ import { Bot } from "lucide-react";
 export function AIChat() {
   const { user } = useAuth();
   const [message, setMessage] = useState("");
+  const [liveMessages, setLiveMessages] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<Message[]>({
     queryKey: ["/api/chat", user?.id],
     enabled: !!user?.id,
   });
 
-  const sendMessageMutation = useMutation({
-    mutationFn: (msg: string) => api.chat.sendMessage(user!.id, msg),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/chat", user?.id] });
-      setMessage("");
-    },
-  });
+  useEffect(() => {
+    if (user?.id) {
+      connectWebSocket((newMessage) => {
+        setLiveMessages((prev) => [...prev, { ...newMessage, isUser: false }]);
+      });
+    }
+  }, [user?.id]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && user) {
-      sendMessageMutation.mutate(message.trim());
+      sendMessageWS(message.trim());
+      setLiveMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          text: message.trim(),
+          isUser: true,
+          createdAt: new Date().toISOString(),
+        }
+      ]);
+      setMessage("");
     }
   };
 
+
   // Format messages for display
-  const chatMessages = messages.flatMap((msg: any) => {
+  const combinedMessages = [...messages, ...liveMessages];
+
+  const chatMessages = combinedMessages.flatMap((msg: any) => {
     const result = [
       {
         id: `${msg.id}-user`,
-        text: msg.message,
-        isUser: true,
+        text: msg.message ?? msg.text,
+        isUser: msg.isUser ?? true,
         createdAt: msg.createdAt
       }
     ];
@@ -63,6 +75,7 @@ export function AIChat() {
     
     return result;
   });
+
 
   return (
     <div className="holographic-border p-6 rounded-xl glow-effect">
@@ -125,11 +138,10 @@ export function AIChat() {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Tell me about your financial situation..."
           className="flex-1"
-          disabled={sendMessageMutation.isPending}
         />
         <HolographicButton
           type="submit"
-          disabled={!message.trim() || sendMessageMutation.isPending}
+          disabled={!message.trim()}
           className="px-4"
         >
           <PaperPlaneIcon className="w-4 h-4" />
