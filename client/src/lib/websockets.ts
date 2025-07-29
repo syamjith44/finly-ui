@@ -8,7 +8,8 @@ export function connectWebSocket(onMessage: (data: any) => void) {
 
   const accessToken = localStorage.getItem("access_token");
 
-  socket = new WebSocket(`${config.WS_BASE_URL}/chat/${accessToken}`); // Update host
+  socket = new WebSocket(`${config.WS_BASE_URL}/assistant/chat?token=${accessToken}`);
+  console.log(config.WS_BASE_URL);
 
   socket.onopen = () => {
     console.log("🔌 WebSocket connected");
